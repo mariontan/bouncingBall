@@ -103,11 +103,8 @@ class Dot
 		//Initializes the variables
 		Dot();
 
-		//Takes key presses and adjusts the dot's velocity
-		void handleEvent( SDL_Event& e );
-
 		//Moves the dot
-		void move();
+		void move(int speed);
 
 		//Shows the dot on the screen
 		void render();
@@ -294,60 +291,30 @@ Dot::Dot()
     mPosY = 0;
 
     //Initialize the velocity
-    mVelX = 0;
-    mVelY = 0;
+    mVelX = 1;
+    mVelY = 1;
 }
 
-void Dot::handleEvent( SDL_Event& e )
-{
-    //If a key was pressed
-	if( e.type == SDL_KEYDOWN && e.key.repeat == 0 )
-    {
-        //Adjust the velocity
-        switch( e.key.keysym.sym )
-        {
-            case SDLK_UP: mVelY -= DOT_VEL; break;
-            case SDLK_DOWN: mVelY += DOT_VEL; break;
-            case SDLK_LEFT: mVelX -= DOT_VEL; break;
-            case SDLK_RIGHT: mVelX += DOT_VEL; break;
-        }
-    }
-    //If a key was released
-    else if( e.type == SDL_KEYUP && e.key.repeat == 0 )
-    {
-        //Adjust the velocity
-        switch( e.key.keysym.sym )
-        {
-            case SDLK_UP: mVelY += DOT_VEL; break;
-            case SDLK_DOWN: mVelY -= DOT_VEL; break;
-            case SDLK_LEFT: mVelX += DOT_VEL; break;
-            case SDLK_RIGHT: mVelX -= DOT_VEL; break;
-        }
-    }
-}
-
-void Dot::move()
+void Dot::move(int speed)
 {
     //Move the dot left or right
-    static int VelX = 10;
-    mPosX += VelX;
+    mPosX += mVelX*speed;
 
     //If the dot went too far to the left or right
     if( ( mPosX < 0 ) || ( mPosX + DOT_WIDTH > SCREEN_WIDTH ) )
     {
         //Move back
-        VelX *= -1;
+        mVelX *= -1;
     }
 
     //Move the dot up or down
-    static int VelY = 10;
-    mPosY += VelY;
+    mPosY += mVelY*speed;
 
     //If the dot went too far up or down
     if( ( mPosY < 0 ) || ( mPosY + DOT_HEIGHT > SCREEN_HEIGHT ) )
     {
         //Move back
-        VelY *= -1;
+        mVelY *= -1;
     }
 }
 
@@ -465,7 +432,7 @@ int main( int argc, char* args[] )
 			SDL_Event e;
 
 			//The dot that will be moving around on the screen
-			Dot dot;
+			Dot dot, dot2;
 
 			//While application is running
 			while( !quit )
@@ -473,26 +440,24 @@ int main( int argc, char* args[] )
 				//Handle events on queue
 				while( SDL_PollEvent( &e ) != 0 )
 				{
-					//User requests quit
-					if( e.type == SDL_QUIT )
+					//User quits by closing window or pressing end
+					if( e.type == SDL_QUIT || e.type == SDL_KEYDOWN )
 					{
 						quit = true;
+						if(e.key.keysym.sym == SDLK_END)
+                            quit = true;
 					}
-
-					//Handle input for the dot
-					dot.handleEvent( e );
-				}
-
+                }
 				//Move the dot
-				dot.move();
-
+				dot.move(3);
+                dot2.move(4);
 				//Clear screen
 				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
 				SDL_RenderClear( gRenderer );
 
 				//Render objects
 				dot.render();
-
+                dot2.render();
 				//Update screen
 				SDL_RenderPresent( gRenderer );
 			}
