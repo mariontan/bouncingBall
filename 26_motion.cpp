@@ -6,6 +6,8 @@ and may not be redistributed without written permission.*/
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <string>
+#include <vector>
+#include <cmath>
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
@@ -104,7 +106,7 @@ class Dot
 		Dot();
 
 		//Moves the dot
-		void move(int speed);
+		void move(int multiplier);
 
 		//Shows the dot on the screen
 		void render();
@@ -294,11 +296,11 @@ Dot::Dot()
     mVelX = 1;
     mVelY = 1;
 }
-
-void Dot::move(int speed)
+//multiplier was added to vary the speeds of the different balls
+void Dot::move(int multiplier)
 {
     //Move the dot left or right
-    mPosX += mVelX*speed;
+    mPosX += mVelX*multiplier;
 
     //If the dot went too far to the left or right
     if( ( mPosX < 0 ) || ( mPosX + DOT_WIDTH > SCREEN_WIDTH ) )
@@ -308,7 +310,7 @@ void Dot::move(int speed)
     }
 
     //Move the dot up or down
-    mPosY += mVelY*speed;
+    mPosY += mVelY*multiplier;
 
     //If the dot went too far up or down
     if( ( mPosY < 0 ) || ( mPosY + DOT_HEIGHT > SCREEN_HEIGHT ) )
@@ -409,6 +411,7 @@ void close()
 	SDL_Quit();
 }
 
+std:: vector<Dot> vecDot;
 int main( int argc, char* args[] )
 {
 	//Start up SDL and create window
@@ -430,10 +433,13 @@ int main( int argc, char* args[] )
 
 			//Event handler
 			SDL_Event e;
-
-			//The dot that will be moving around on the screen
-			Dot dot, dot2;
-
+            /**placed dot in a vector od dots known as vecDot **/
+			//initializes the dot
+			for(int i = 0; i<10; i++){
+			Dot dot;
+			vecDot.push_back(dot);
+			}
+            /**************************************************/
 			//While application is running
 			while( !quit )
 			{
@@ -449,15 +455,19 @@ int main( int argc, char* args[] )
 					}
                 }
 				//Move the dot
-				dot.move(3);
-                dot2.move(4);
+				for(int i =0; i<vecDot.size(); i++ ){
+                    vecDot[i].move(i);
+				}
+                //dot2.move(4);
 				//Clear screen
 				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
 				SDL_RenderClear( gRenderer );
 
 				//Render objects
-				dot.render();
-                dot2.render();
+				for(int i =1; i<vecDot.size(); i++ ){
+                    vecDot[i].render();
+				}
+                //dot2.render();
 				//Update screen
 				SDL_RenderPresent( gRenderer );
 			}
